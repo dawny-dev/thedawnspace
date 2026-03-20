@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "date": "March 20, 2026",
+    "tag": "hello",
+    "title": "this is my space.",
+    "body": "no rules here. Be authentic, be real, things i'm into and things i'm making. welcome.
+    },
+  {
+    "id": 2,
+    "date": "March 20, 2026",
+    "tag": "life",
+    "title": "currently obsessed with how things work.",
+    "body": "There's something beautiful about understanding the logic behind things. like the world makes more sense when you look closer."
+  }
+]
