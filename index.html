@@ -1,530 +1,693 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VOID // EXPERIMENT</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+  <title>DAWNTHEDON</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
     :root {
-      --bg: #050508;
-      --accent1: #00ffe0;
-      --accent2: #ff2d78;
-      --accent3: #c8ff00;
-      --text: #e8e8e8;
-      --mono: 'Space Mono', monospace;
-      --display: 'Bebas Neue', sans-serif;
+      --gold: #d4a853;
+      --gold2: #f0c97a;
+      --black: #080806;
+      --white: #f5f0e8;
+      --red: #c0392b;
+      --mono: 'DM Mono', monospace;
+      --display: 'Anton', sans-serif;
     }
 
-    html, body {
-      width: 100%; height: 100%;
-      background: var(--bg);
-      color: var(--text);
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
       font-family: var(--mono);
-      overflow: hidden;
+      overflow-x: hidden;
       cursor: none;
     }
 
-    /* ── custom cursor ── */
-    #cursor {
+    /* ── CURSOR ── */
+    #cur {
       position: fixed;
-      width: 12px; height: 12px;
-      background: var(--accent1);
+      width: 10px; height: 10px;
+      background: var(--gold);
       border-radius: 50%;
       pointer-events: none;
-      transform: translate(-50%, -50%);
-      mix-blend-mode: exclusion;
-      transition: transform 0.08s ease, width 0.15s ease, height 0.15s ease;
+      transform: translate(-50%,-50%);
       z-index: 9999;
+      transition: transform 0.06s;
     }
-    #cursor-ring {
+    #cur2 {
       position: fixed;
-      width: 36px; height: 36px;
-      border: 1px solid var(--accent1);
+      width: 32px; height: 32px;
+      border: 1px solid var(--gold);
       border-radius: 50%;
       pointer-events: none;
-      transform: translate(-50%, -50%);
-      opacity: 0.5;
-      transition: transform 0.22s ease, width 0.22s ease, height 0.22s ease, opacity 0.22s;
+      transform: translate(-50%,-50%);
       z-index: 9998;
+      opacity: 0.4;
+      transition: left 0.14s ease, top 0.14s ease;
     }
 
-    /* ── canvas ── */
-    canvas {
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content:'';
       position: fixed;
       inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 6vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* animated gold lines background */
+    #hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 80px,
+          rgba(212,168,83,0.03) 80px,
+          rgba(212,168,83,0.03) 81px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 80px,
+          rgba(212,168,83,0.03) 80px,
+          rgba(212,168,83,0.03) 81px
+        );
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--mono);
+      font-size: clamp(0.55rem, 1.2vw, 0.75rem);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s ease forwards;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-name {
+      font-family: var(--display);
+      font-size: clamp(4.5rem, 16vw, 14rem);
+      line-height: 0.88;
+      letter-spacing: -0.01em;
+      color: var(--white);
+      position: relative;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.4s ease forwards;
+    }
+
+    /* gold outline ghost text behind */
+    .hero-name::before {
+      content: 'DAWNTHEDON';
+      position: absolute;
+      top: 6px; left: 6px;
+      -webkit-text-stroke: 1px var(--gold);
+      color: transparent;
+      pointer-events: none;
+      opacity: 0.18;
+    }
+
+    .hero-name .highlight {
+      color: var(--gold);
+      position: relative;
+      display: inline-block;
+    }
+    .hero-name .highlight::after {
+      content: '';
+      position: absolute;
+      bottom: 4px; left: 0; right: 0;
+      height: 3px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: lineIn 0.6s 1.4s ease forwards;
+    }
+
+    .hero-sub {
+      margin-top: 2.5rem;
+      font-size: clamp(0.65rem, 1.4vw, 0.85rem);
+      letter-spacing: 0.12em;
+      color: var(--white);
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s ease forwards;
+      max-width: 420px;
+      line-height: 1.9;
+    }
+
+    .hero-sub span { color: var(--gold); }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 40px; left: 6vw;
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      opacity: 0;
+      color: var(--gold);
+      animation: fadeUp 0.8s 1.4s ease forwards;
+    }
+    .scroll-hint::before {
+      content: '↓  ';
+      animation: bounce 1.4s infinite;
+      display: inline-block;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 28px 6vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 500;
+      mix-blend-mode: normal;
+    }
+    nav::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 6vw; right: 6vw;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.2;
+    }
+    .nav-logo {
+      font-family: var(--display);
+      font-size: 1.1rem;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+    }
+    .nav-links {
+      display: flex; gap: 36px; list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.55rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.2s, color 0.2s;
+    }
+    .nav-links a:hover { opacity: 1; color: var(--gold); }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid rgba(212,168,83,0.15);
+      border-bottom: 1px solid rgba(212,168,83,0.15);
+      padding: 18px 0;
+      background: rgba(212,168,83,0.04);
+    }
+    .marquee-track {
+      display: flex;
+      white-space: nowrap;
+      animation: marquee 18s linear infinite;
+    }
+    .marquee-item {
+      font-family: var(--display);
+      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+      letter-spacing: 0.12em;
+      padding: 0 48px;
+      color: var(--gold);
+      opacity: 0.55;
+    }
+    .marquee-item.dim { color: var(--white); opacity: 0.12; }
+
+    /* ── SECTIONS ── */
+    section {
+      padding: 120px 6vw;
+    }
+
+    .section-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      max-width: 80px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.4;
+    }
+
+    .section-title {
+      font-family: var(--display);
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      margin-bottom: 48px;
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    @media (max-width: 768px) { #about { grid-template-columns: 1fr; gap: 48px; } }
+
+    .about-text {
+      font-size: clamp(0.8rem, 1.5vw, 1rem);
+      line-height: 2;
+      opacity: 0.75;
+      letter-spacing: 0.02em;
+    }
+    .about-text strong { color: var(--gold); font-style: italic; font-weight: 300; }
+
+    .about-right {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(245,240,232,0.07);
+    }
+    .stat-row:first-child { border-top: 1px solid rgba(245,240,232,0.07); }
+    .stat-num {
+      font-family: var(--display);
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+    .stat-desc {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.45;
+      text-align: right;
+    }
+
+    /* ── WORK / CARDS ── */
+    #work { background: rgba(212,168,83,0.02); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2px;
+    }
+
+    .card {
+      position: relative;
+      aspect-ratio: 3/4;
+      background: #0f0f0c;
+      overflow: hidden;
+      cursor: pointer;
+      group: true;
+    }
+
+    .card-bg {
+      position: absolute;
+      inset: 0;
+      transition: transform 0.6s cubic-bezier(.16,1,.3,1);
+    }
+    .card:hover .card-bg { transform: scale(1.06); }
+
+    .card-bg-1 { background: linear-gradient(135deg, #1a1206 0%, #2d1f08 50%, #0d0d0a 100%); }
+    .card-bg-2 { background: linear-gradient(135deg, #0d0a14 0%, #1a0a12 50%, #080606 100%); }
+    .card-bg-3 { background: linear-gradient(135deg, #080d0a 0%, #0a1a10 50%, #060808 100%); }
+
+    /* geometric card art */
+    .card-art {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--display);
+      font-size: clamp(4rem, 8vw, 7rem);
+      opacity: 0.07;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      transition: opacity 0.4s;
+    }
+    .card:hover .card-art { opacity: 0.14; }
+
+    .card-content {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 28px;
+      background: linear-gradient(to top, rgba(8,8,6,0.95) 0%, transparent 100%);
+      transform: translateY(8px);
+      transition: transform 0.4s ease;
+    }
+    .card:hover .card-content { transform: translateY(0); }
+
+    .card-tag {
+      font-size: 0.48rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.7;
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-family: var(--display);
+      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+      letter-spacing: 0.06em;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .card-desc {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      opacity: 0.5;
+      line-height: 1.7;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+    .card:hover .card-desc { max-height: 80px; }
+
+    /* ── CONTACT ── */
+    #contact {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+    }
+
+    #contact .section-label { justify-content: center; }
+    #contact .section-label::after { display: none; }
+
+    .contact-headline {
+      font-family: var(--display);
+      font-size: clamp(3rem, 10vw, 9rem);
+      letter-spacing: 0.04em;
+      line-height: 0.9;
+      color: var(--white);
+      position: relative;
+    }
+    .contact-headline em {
+      color: var(--gold);
+      font-style: normal;
       display: block;
     }
 
-    /* ── UI overlay ── */
-    .ui {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 10;
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--gold);
+      color: var(--black);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 18px 40px;
+      transition: background 0.2s, transform 0.2s;
+      cursor: pointer;
+      border: none;
     }
+    .cta-btn:hover { background: var(--gold2); transform: translateY(-2px); }
+    .cta-btn .arrow { font-size: 1rem; }
 
-    /* top bar */
-    .top-bar {
-      position: absolute;
-      top: 32px; left: 40px; right: 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+    .social-row {
+      display: flex; gap: 32px;
     }
-
-    .logo {
-      font-family: var(--display);
-      font-size: clamp(2.5rem, 5vw, 4.5rem);
-      letter-spacing: 0.08em;
-      line-height: 1;
-      color: var(--text);
-    }
-    .logo span { color: var(--accent1); }
-
-    .tagline {
-      font-size: 0.6rem;
+    .social-link {
+      font-size: 0.5rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
-      color: var(--accent1);
-      margin-top: 6px;
-      opacity: 0.7;
+      color: var(--white);
+      text-decoration: none;
+      opacity: 0.35;
+      transition: opacity 0.2s, color 0.2s;
     }
+    .social-link:hover { opacity: 1; color: var(--gold); }
 
-    .top-right {
-      text-align: right;
-      font-size: 0.55rem;
-      letter-spacing: 0.18em;
-      line-height: 2;
-      opacity: 0.45;
-      color: var(--text);
-    }
-
-    /* center text */
-    .center-msg {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      pointer-events: none;
-    }
-    .center-msg h2 {
-      font-family: var(--display);
-      font-size: clamp(4rem, 10vw, 9rem);
-      letter-spacing: 0.12em;
-      line-height: 0.9;
-      background: linear-gradient(135deg, var(--accent1) 0%, var(--accent2) 60%, var(--accent3) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      opacity: 0.12;
-      user-select: none;
-    }
-
-    /* bottom bar */
-    .bottom-bar {
-      position: absolute;
-      bottom: 28px; left: 40px; right: 40px;
+    /* ── FOOTER ── */
+    footer {
+      padding: 40px 6vw;
+      border-top: 1px solid rgba(212,168,83,0.1);
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
-    }
-    .stat-block {
-      display: flex; gap: 36px;
-    }
-    .stat {
-      display: flex; flex-direction: column; gap: 2px;
-    }
-    .stat-label {
+      align-items: center;
       font-size: 0.48rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      opacity: 0.4;
-    }
-    .stat-value {
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      color: var(--accent1);
-    }
-
-    .hint {
-      font-size: 0.5rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
       opacity: 0.3;
-      text-align: right;
-      line-height: 2;
     }
 
-    /* glitch border lines */
-    .border-h {
-      position: absolute;
-      left: 40px; right: 40px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent1) 30%, var(--accent2) 70%, transparent);
-      opacity: 0.15;
-    }
-    .border-h.top { top: 80px; }
-    .border-h.bottom { bottom: 64px; }
-
-    /* scanline overlay */
-    .scanlines {
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0,0,0,0.07) 3px,
-        rgba(0,0,0,0.07) 4px
-      );
-      pointer-events: none;
-      z-index: 5;
-    }
-
-    /* mode indicator */
-    .mode-pill {
-      position: absolute;
-      top: 50%; right: 40px;
-      transform: translateY(-50%);
-      display: flex; flex-direction: column; gap: 10px;
-      pointer-events: auto;
-    }
-    .mode-btn {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.25);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .mode-btn.active { background: var(--accent1); border-color: var(--accent1); }
-    .mode-btn:hover { border-color: var(--accent2); }
-
-    /* fade in */
+    /* ── ANIMATIONS ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
+      from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .top-bar, .bottom-bar { animation: fadeUp 1.2s ease both; }
+    @keyframes lineIn {
+      to { transform: scaleX(1); }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(5px); }
+    }
+
+    /* scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* glitch effect on hover of name */
+    .hero-name:hover { animation: glitch 0.3s ease; }
+    @keyframes glitch {
+      0%  { clip-path: none; transform: none; }
+      20% { clip-path: inset(20% 0 60% 0); transform: translate(-4px, 0); }
+      40% { clip-path: inset(60% 0 10% 0); transform: translate(4px, 0); }
+      60% { clip-path: none; transform: translate(-2px, 0); }
+      80% { clip-path: inset(10% 0 80% 0); transform: translate(2px, 0); }
+      100%{ clip-path: none; transform: none; }
+    }
   </style>
 </head>
 <body>
 
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
+<div id="cur"></div>
+<div id="cur2"></div>
 
-<canvas id="c"></canvas>
-<div class="scanlines"></div>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">DTD</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
 
-<div class="ui">
-  <div class="top-bar">
-    <div>
-      <div class="logo">VOID<span>//</span>EX</div>
-      <div class="tagline">generative systems · v0.1</div>
-    </div>
-    <div class="top-right">
-      <div id="clock">00:00:00</div>
-      <div>CANVAS ACTIVE</div>
-      <div>MOVE MOUSE TO INTERACT</div>
-    </div>
-  </div>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-eyebrow">Est. here. Now. Forever.</div>
+  <h1 class="hero-name">DAWN<br>THE<span class="highlight">DON</span></h1>
+  <p class="hero-sub">
+    Creative. Engineer. Visionary.<br>
+    <span>Code meets art</span> — built different, moving different.
+  </p>
+  <div class="scroll-hint">Scroll to explore</div>
+</section>
 
-  <div class="border-h top"></div>
-
-  <div class="center-msg">
-    <h2>GENERATE</h2>
-  </div>
-
-  <div class="mode-pill">
-    <div class="mode-btn active" data-mode="0" title="Flow"></div>
-    <div class="mode-btn" data-mode="1" title="Explode"></div>
-    <div class="mode-btn" data-mode="2" title="Web"></div>
-  </div>
-
-  <div class="border-h bottom"></div>
-
-  <div class="bottom-bar">
-    <div class="stat-block">
-      <div class="stat">
-        <div class="stat-label">Particles</div>
-        <div class="stat-value" id="s-count">0</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Mode</div>
-        <div class="stat-value" id="s-mode">FLOW</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">FPS</div>
-        <div class="stat-value" id="s-fps">0</div>
-      </div>
-    </div>
-    <div class="hint">
-      <div>CLICK · DRAG · SCROLL TO SCALE</div>
-      <div>DOTS ON RIGHT = SWITCH MODE</div>
-    </div>
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item">DAWNTHEDON</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">CREATIVE</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">ENGINEER</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">VISIONARY</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">DAWNTHEDON</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">CREATIVE</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">ENGINEER</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">VISIONARY</span>
+    <span class="marquee-item dim">✦</span>
+    <!-- duplicate for seamless loop -->
+    <span class="marquee-item">DAWNTHEDON</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">CREATIVE</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">ENGINEER</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">VISIONARY</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">DAWNTHEDON</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">CREATIVE</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">ENGINEER</span>
+    <span class="marquee-item dim">✦</span>
+    <span class="marquee-item">VISIONARY</span>
+    <span class="marquee-item dim">✦</span>
   </div>
 </div>
 
+<!-- ABOUT -->
+<section>
+  <div id="about" class="reveal">
+    <div>
+      <div class="section-label">001 — About</div>
+      <h2 class="section-title">THE STORY<br>SO FAR</h2>
+      <p class="about-text">
+        I'm <strong>Dawn</strong> — a builder at the intersection of
+        technology and creative vision. From <strong>engineering circuits</strong>
+        to crafting animated worlds, I approach every project like it's
+        a statement.<br><br>
+        Not just making things that work —
+        making things that <strong>hit different</strong>.
+      </p>
+    </div>
+    <div class="about-right">
+      <div class="stat-row">
+        <span class="stat-num">∞</span>
+        <span class="stat-desc">Ideas in progress</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-num">01</span>
+        <span class="stat-desc">Of a kind</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-num">24</span>
+        <span class="stat-desc">Hours dedicated</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-num">0</span>
+        <span class="stat-desc">Limits accepted</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="section-label reveal">002 — Work</div>
+  <h2 class="section-title reveal">SELECTED<br>PROJECTS</h2>
+  <div class="cards reveal">
+    <div class="card">
+      <div class="card-bg card-bg-1"></div>
+      <div class="card-art">01</div>
+      <div class="card-content">
+        <div class="card-tag">Engineering</div>
+        <div class="card-title">CIRCUITS &<br>SYSTEMS</div>
+        <div class="card-desc">Analog & digital electronics — where logic meets the physical world.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bg card-bg-2"></div>
+      <div class="card-art">02</div>
+      <div class="card-content">
+        <div class="card-tag">Creative Code</div>
+        <div class="card-title">MOTION &<br>ANIMATION</div>
+        <div class="card-desc">Bringing ideas to life through code — Manim, Canvas, and beyond.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-bg card-bg-3"></div>
+      <div class="card-art">03</div>
+      <div class="card-content">
+        <div class="card-tag">Mathematics</div>
+        <div class="card-title">LINEAR<br>ALGEBRA</div>
+        <div class="card-desc">Vectors, spaces, transformations — the language underneath everything.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-label reveal">003 — Contact</div>
+  <div class="contact-headline reveal">
+    LET'S<br><em>CONNECT.</em>
+  </div>
+  <a class="cta-btn reveal" href="mailto:hello@dawnthedon.com">
+    Get in touch <span class="arrow">→</span>
+  </a>
+  <div class="social-row reveal">
+    <a class="social-link" href="#">Twitter</a>
+    <a class="social-link" href="#">Instagram</a>
+    <a class="social-link" href="#">GitHub</a>
+    <a class="social-link" href="#">LinkedIn</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 Dawnthedon</span>
+  <span>Built from scratch</span>
+  <span>All rights reserved</span>
+</footer>
+
 <script>
-// ─────────────────────────────────────────────
-//  CORE SETUP
-// ─────────────────────────────────────────────
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-
-let W, H;
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener('resize', resize);
-
-// ─────────────────────────────────────────────
-//  MOUSE / TOUCH
-// ─────────────────────────────────────────────
-const mouse = { x: W/2, y: H/2, vx: 0, vy: 0, down: false };
-let prevMX = W/2, prevMY = H/2;
-
-window.addEventListener('mousemove', e => {
-  mouse.vx = e.clientX - prevMX;
-  mouse.vy = e.clientY - prevMY;
-  prevMX = mouse.x = e.clientX;
-  prevMY = mouse.y = e.clientY;
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top  = e.clientY + 'px';
-  setTimeout(() => {
-    ring.style.left = e.clientX + 'px';
-    ring.style.top  = e.clientY + 'px';
-  }, 60);
-});
-window.addEventListener('mousedown', () => { mouse.down = true; spawnBurst(mouse.x, mouse.y, 18); });
-window.addEventListener('mouseup',   () => { mouse.down = false; });
-window.addEventListener('wheel', e => { SCALE = Math.max(0.3, Math.min(2.5, SCALE - e.deltaY * 0.001)); });
-
-const cursor = document.getElementById('cursor');
-const ring   = document.getElementById('cursor-ring');
-
-// ─────────────────────────────────────────────
-//  MODES
-// ─────────────────────────────────────────────
-const MODES = ['FLOW', 'EXPLODE', 'WEB'];
-let currentMode = 0;
-let SCALE = 1;
-
-document.querySelectorAll('.mode-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    currentMode = +btn.dataset.mode;
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('s-mode').textContent = MODES[currentMode];
+  // cursor
+  const cur = document.getElementById('cur');
+  const cur2 = document.getElementById('cur2');
+  document.addEventListener('mousemove', e => {
+    cur.style.left  = e.clientX + 'px';
+    cur.style.top   = e.clientY + 'px';
+    setTimeout(() => {
+      cur2.style.left = e.clientX + 'px';
+      cur2.style.top  = e.clientY + 'px';
+    }, 80);
   });
-});
 
-// ─────────────────────────────────────────────
-//  PARTICLE SYSTEM
-// ─────────────────────────────────────────────
-const PALETTE = ['#00ffe0','#ff2d78','#c8ff00','#a78bfa','#f97316'];
-const MAX_P = 320;
-let particles = [];
+  // scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.12 });
 
-class Particle {
-  constructor(x, y, burst = false) {
-    this.x  = x  ?? Math.random() * W;
-    this.y  = y  ?? Math.random() * H;
-    const angle = Math.random() * Math.PI * 2;
-    const spd   = burst ? (2 + Math.random() * 6) : (0.4 + Math.random() * 1.2);
-    this.vx = Math.cos(angle) * spd;
-    this.vy = Math.sin(angle) * spd;
-    this.r  = (burst ? 2 : 1) + Math.random() * 2.5;
-    this.baseR = this.r;
-    this.color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-    this.alpha = 0.7 + Math.random() * 0.3;
-    this.life  = burst ? 80 + Math.random() * 60 : Infinity;
-    this.age   = 0;
-    this.trail = [];
-  }
-
-  update() {
-    this.age++;
-    if (this.age > this.life) return false;
-
-    const dx = mouse.x - this.x;
-    const dy = mouse.y - this.y;
-    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-
-    if (currentMode === 0) {        // FLOW — attracted gently
-      const force = Math.min(120, dist) / 120;
-      this.vx += (dx/dist) * force * 0.18 * SCALE;
-      this.vy += (dy/dist) * force * 0.18 * SCALE;
-    } else if (currentMode === 1) { // EXPLODE — repelled
-      const force = Math.max(0, 200 - dist) / 200;
-      this.vx -= (dx/dist) * force * 0.6 * SCALE;
-      this.vy -= (dy/dist) * force * 0.6 * SCALE;
-    } else {                        // WEB — orbit
-      const perp = { x: -dy/dist, y: dx/dist };
-      const force = Math.min(1, 180 / (dist + 1));
-      this.vx += perp.x * force * 0.12 * SCALE;
-      this.vy += perp.y * force * 0.12 * SCALE;
-    }
-
-    // damping
-    this.vx *= 0.96;
-    this.vy *= 0.96;
-
-    // trail
-    this.trail.push({ x: this.x, y: this.y });
-    if (this.trail.length > 12) this.trail.shift();
-
-    this.x += this.vx;
-    this.y += this.vy;
-
-    // wrap
-    if (this.x < 0) this.x = W;
-    if (this.x > W) this.x = 0;
-    if (this.y < 0) this.y = H;
-    if (this.y > H) this.y = 0;
-
-    return true;
-  }
-
-  draw() {
-    const lifeFrac = this.life === Infinity ? 1 : 1 - this.age / this.life;
-    const a = this.alpha * lifeFrac;
-
-    // trail
-    if (this.trail.length > 1) {
-      ctx.beginPath();
-      ctx.moveTo(this.trail[0].x, this.trail[0].y);
-      for (let i = 1; i < this.trail.length; i++) {
-        ctx.lineTo(this.trail[i].x, this.trail[i].y);
-      }
-      ctx.strokeStyle = this.color;
-      ctx.globalAlpha = a * 0.15;
-      ctx.lineWidth = this.r * 0.6;
-      ctx.stroke();
-    }
-
-    // glow
-    const grd = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r * 4);
-    grd.addColorStop(0, this.color);
-    grd.addColorStop(1, 'transparent');
-    ctx.globalAlpha = a * 0.18;
-    ctx.fillStyle = grd;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r * 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    // core dot
-    ctx.globalAlpha = a;
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.globalAlpha = 1;
-  }
-}
-
-function spawnBurst(x, y, n) {
-  for (let i = 0; i < n; i++) particles.push(new Particle(x, y, true));
-}
-
-// init
-for (let i = 0; i < 180; i++) particles.push(new Particle());
-
-// ─────────────────────────────────────────────
-//  WEB LINES (mode 2)
-// ─────────────────────────────────────────────
-function drawWebLines() {
-  const threshold = 100;
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i+1; j < particles.length; j++) {
-      const p = particles[i], q = particles[j];
-      const dx = p.x - q.x, dy = p.y - q.y;
-      const d = Math.sqrt(dx*dx + dy*dy);
-      if (d < threshold) {
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(q.x, q.y);
-        ctx.strokeStyle = p.color;
-        ctx.globalAlpha = (1 - d/threshold) * 0.18;
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
-      }
-    }
-  }
-  ctx.globalAlpha = 1;
-}
-
-// ─────────────────────────────────────────────
-//  SPAWN ON MOVE (continuous)
-// ─────────────────────────────────────────────
-let spawnAcc = 0;
-function maybeSpawn() {
-  const speed = Math.sqrt(mouse.vx**2 + mouse.vy**2);
-  spawnAcc += speed * 0.12;
-  while (spawnAcc > 1 && particles.length < MAX_P) {
-    particles.push(new Particle(
-      mouse.x + (Math.random()-0.5)*20,
-      mouse.y + (Math.random()-0.5)*20,
-      false
-    ));
-    spawnAcc--;
-  }
-}
-
-// ─────────────────────────────────────────────
-//  LOOP
-// ─────────────────────────────────────────────
-let lastT = 0, fps = 0, fpsAcc = 0, fpsFrames = 0;
-
-function loop(t) {
-  requestAnimationFrame(loop);
-
-  // FPS
-  const dt = t - lastT; lastT = t;
-  fpsAcc += dt; fpsFrames++;
-  if (fpsAcc > 600) {
-    fps = Math.round(fpsFrames / fpsAcc * 1000);
-    fpsAcc = 0; fpsFrames = 0;
-    document.getElementById('s-fps').textContent   = fps;
-    document.getElementById('s-count').textContent = particles.length;
-  }
-
-  // clear (with fade trail)
-  ctx.fillStyle = 'rgba(5,5,8,0.25)';
-  ctx.fillRect(0, 0, W, H);
-
-  maybeSpawn();
-
-  // web lines first (behind particles)
-  if (currentMode === 2) drawWebLines();
-
-  // update + draw
-  particles = particles.filter(p => p.update());
-  particles.forEach(p => p.draw());
-
-  // refill if too few
-  while (particles.length < 120) particles.push(new Particle());
-}
-
-requestAnimationFrame(loop);
-
-// ─────────────────────────────────────────────
-//  CLOCK
-// ─────────────────────────────────────────────
-function updateClock() {
-  const n = new Date();
-  document.getElementById('clock').textContent =
-    String(n.getHours()).padStart(2,'0') + ':' +
-    String(n.getMinutes()).padStart(2,'0') + ':' +
-    String(n.getSeconds()).padStart(2,'0');
-}
-updateClock();
-setInterval(updateClock, 1000);
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
