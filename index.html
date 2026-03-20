@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VOID // EXPERIMENT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #050508;
+      --accent1: #00ffe0;
+      --accent2: #ff2d78;
+      --accent3: #c8ff00;
+      --text: #e8e8e8;
+      --mono: 'Space Mono', monospace;
+      --display: 'Bebas Neue', sans-serif;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      overflow: hidden;
+      cursor: none;
+    }
+
+    /* ── custom cursor ── */
+    #cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--accent1);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: exclusion;
+      transition: transform 0.08s ease, width 0.15s ease, height 0.15s ease;
+      z-index: 9999;
+    }
+    #cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid var(--accent1);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      opacity: 0.5;
+      transition: transform 0.22s ease, width 0.22s ease, height 0.22s ease, opacity 0.22s;
+      z-index: 9998;
+    }
+
+    /* ── canvas ── */
+    canvas {
+      position: fixed;
+      inset: 0;
+      display: block;
+    }
+
+    /* ── UI overlay ── */
+    .ui {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* top bar */
+    .top-bar {
+      position: absolute;
+      top: 32px; left: 40px; right: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .logo {
+      font-family: var(--display);
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      letter-spacing: 0.08em;
+      line-height: 1;
+      color: var(--text);
+    }
+    .logo span { color: var(--accent1); }
+
+    .tagline {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent1);
+      margin-top: 6px;
+      opacity: 0.7;
+    }
+
+    .top-right {
+      text-align: right;
+      font-size: 0.55rem;
+      letter-spacing: 0.18em;
+      line-height: 2;
+      opacity: 0.45;
+      color: var(--text);
+    }
+
+    /* center text */
+    .center-msg {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+    }
+    .center-msg h2 {
+      font-family: var(--display);
+      font-size: clamp(4rem, 10vw, 9rem);
+      letter-spacing: 0.12em;
+      line-height: 0.9;
+      background: linear-gradient(135deg, var(--accent1) 0%, var(--accent2) 60%, var(--accent3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0.12;
+      user-select: none;
+    }
+
+    /* bottom bar */
+    .bottom-bar {
+      position: absolute;
+      bottom: 28px; left: 40px; right: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .stat-block {
+      display: flex; gap: 36px;
+    }
+    .stat {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .stat-label {
+      font-size: 0.48rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.4;
+    }
+    .stat-value {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--accent1);
+    }
+
+    .hint {
+      font-size: 0.5rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.3;
+      text-align: right;
+      line-height: 2;
+    }
+
+    /* glitch border lines */
+    .border-h {
+      position: absolute;
+      left: 40px; right: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent1) 30%, var(--accent2) 70%, transparent);
+      opacity: 0.15;
+    }
+    .border-h.top { top: 80px; }
+    .border-h.bottom { bottom: 64px; }
+
+    /* scanline overlay */
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.07) 3px,
+        rgba(0,0,0,0.07) 4px
+      );
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* mode indicator */
+    .mode-pill {
+      position: absolute;
+      top: 50%; right: 40px;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 10px;
+      pointer-events: auto;
+    }
+    .mode-btn {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.25);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-btn.active { background: var(--accent1); border-color: var(--accent1); }
+    .mode-btn:hover { border-color: var(--accent2); }
+
+    /* fade in */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .top-bar, .bottom-bar { animation: fadeUp 1.2s ease both; }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<canvas id="c"></canvas>
+<div class="scanlines"></div>
+
+<div class="ui">
+  <div class="top-bar">
+    <div>
+      <div class="logo">VOID<span>//</span>EX</div>
+      <div class="tagline">generative systems · v0.1</div>
+    </div>
+    <div class="top-right">
+      <div id="clock">00:00:00</div>
+      <div>CANVAS ACTIVE</div>
+      <div>MOVE MOUSE TO INTERACT</div>
+    </div>
+  </div>
+
+  <div class="border-h top"></div>
+
+  <div class="center-msg">
+    <h2>GENERATE</h2>
+  </div>
+
+  <div class="mode-pill">
+    <div class="mode-btn active" data-mode="0" title="Flow"></div>
+    <div class="mode-btn" data-mode="1" title="Explode"></div>
+    <div class="mode-btn" data-mode="2" title="Web"></div>
+  </div>
+
+  <div class="border-h bottom"></div>
+
+  <div class="bottom-bar">
+    <div class="stat-block">
+      <div class="stat">
+        <div class="stat-label">Particles</div>
+        <div class="stat-value" id="s-count">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Mode</div>
+        <div class="stat-value" id="s-mode">FLOW</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">FPS</div>
+        <div class="stat-value" id="s-fps">0</div>
+      </div>
+    </div>
+    <div class="hint">
+      <div>CLICK · DRAG · SCROLL TO SCALE</div>
+      <div>DOTS ON RIGHT = SWITCH MODE</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  CORE SETUP
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+let W, H;
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ─────────────────────────────────────────────
+//  MOUSE / TOUCH
+// ─────────────────────────────────────────────
+const mouse = { x: W/2, y: H/2, vx: 0, vy: 0, down: false };
+let prevMX = W/2, prevMY = H/2;
+
+window.addEventListener('mousemove', e => {
+  mouse.vx = e.clientX - prevMX;
+  mouse.vy = e.clientY - prevMY;
+  prevMX = mouse.x = e.clientX;
+  prevMY = mouse.y = e.clientY;
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+  setTimeout(() => {
+    ring.style.left = e.clientX + 'px';
+    ring.style.top  = e.clientY + 'px';
+  }, 60);
+});
+window.addEventListener('mousedown', () => { mouse.down = true; spawnBurst(mouse.x, mouse.y, 18); });
+window.addEventListener('mouseup',   () => { mouse.down = false; });
+window.addEventListener('wheel', e => { SCALE = Math.max(0.3, Math.min(2.5, SCALE - e.deltaY * 0.001)); });
+
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursor-ring');
+
+// ─────────────────────────────────────────────
+//  MODES
+// ─────────────────────────────────────────────
+const MODES = ['FLOW', 'EXPLODE', 'WEB'];
+let currentMode = 0;
+let SCALE = 1;
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentMode = +btn.dataset.mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('s-mode').textContent = MODES[currentMode];
+  });
+});
+
+// ─────────────────────────────────────────────
+//  PARTICLE SYSTEM
+// ─────────────────────────────────────────────
+const PALETTE = ['#00ffe0','#ff2d78','#c8ff00','#a78bfa','#f97316'];
+const MAX_P = 320;
+let particles = [];
+
+class Particle {
+  constructor(x, y, burst = false) {
+    this.x  = x  ?? Math.random() * W;
+    this.y  = y  ?? Math.random() * H;
+    const angle = Math.random() * Math.PI * 2;
+    const spd   = burst ? (2 + Math.random() * 6) : (0.4 + Math.random() * 1.2);
+    this.vx = Math.cos(angle) * spd;
+    this.vy = Math.sin(angle) * spd;
+    this.r  = (burst ? 2 : 1) + Math.random() * 2.5;
+    this.baseR = this.r;
+    this.color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+    this.alpha = 0.7 + Math.random() * 0.3;
+    this.life  = burst ? 80 + Math.random() * 60 : Infinity;
+    this.age   = 0;
+    this.trail = [];
+  }
+
+  update() {
+    this.age++;
+    if (this.age > this.life) return false;
+
+    const dx = mouse.x - this.x;
+    const dy = mouse.y - this.y;
+    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+
+    if (currentMode === 0) {        // FLOW — attracted gently
+      const force = Math.min(120, dist) / 120;
+      this.vx += (dx/dist) * force * 0.18 * SCALE;
+      this.vy += (dy/dist) * force * 0.18 * SCALE;
+    } else if (currentMode === 1) { // EXPLODE — repelled
+      const force = Math.max(0, 200 - dist) / 200;
+      this.vx -= (dx/dist) * force * 0.6 * SCALE;
+      this.vy -= (dy/dist) * force * 0.6 * SCALE;
+    } else {                        // WEB — orbit
+      const perp = { x: -dy/dist, y: dx/dist };
+      const force = Math.min(1, 180 / (dist + 1));
+      this.vx += perp.x * force * 0.12 * SCALE;
+      this.vy += perp.y * force * 0.12 * SCALE;
+    }
+
+    // damping
+    this.vx *= 0.96;
+    this.vy *= 0.96;
+
+    // trail
+    this.trail.push({ x: this.x, y: this.y });
+    if (this.trail.length > 12) this.trail.shift();
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // wrap
+    if (this.x < 0) this.x = W;
+    if (this.x > W) this.x = 0;
+    if (this.y < 0) this.y = H;
+    if (this.y > H) this.y = 0;
+
+    return true;
+  }
+
+  draw() {
+    const lifeFrac = this.life === Infinity ? 1 : 1 - this.age / this.life;
+    const a = this.alpha * lifeFrac;
+
+    // trail
+    if (this.trail.length > 1) {
+      ctx.beginPath();
+      ctx.moveTo(this.trail[0].x, this.trail[0].y);
+      for (let i = 1; i < this.trail.length; i++) {
+        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+      }
+      ctx.strokeStyle = this.color;
+      ctx.globalAlpha = a * 0.15;
+      ctx.lineWidth = this.r * 0.6;
+      ctx.stroke();
+    }
+
+    // glow
+    const grd = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r * 4);
+    grd.addColorStop(0, this.color);
+    grd.addColorStop(1, 'transparent');
+    ctx.globalAlpha = a * 0.18;
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r * 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // core dot
+    ctx.globalAlpha = a;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
+  }
+}
+
+function spawnBurst(x, y, n) {
+  for (let i = 0; i < n; i++) particles.push(new Particle(x, y, true));
+}
+
+// init
+for (let i = 0; i < 180; i++) particles.push(new Particle());
+
+// ─────────────────────────────────────────────
+//  WEB LINES (mode 2)
+// ─────────────────────────────────────────────
+function drawWebLines() {
+  const threshold = 100;
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i+1; j < particles.length; j++) {
+      const p = particles[i], q = particles[j];
+      const dx = p.x - q.x, dy = p.y - q.y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < threshold) {
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(q.x, q.y);
+        ctx.strokeStyle = p.color;
+        ctx.globalAlpha = (1 - d/threshold) * 0.18;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ─────────────────────────────────────────────
+//  SPAWN ON MOVE (continuous)
+// ─────────────────────────────────────────────
+let spawnAcc = 0;
+function maybeSpawn() {
+  const speed = Math.sqrt(mouse.vx**2 + mouse.vy**2);
+  spawnAcc += speed * 0.12;
+  while (spawnAcc > 1 && particles.length < MAX_P) {
+    particles.push(new Particle(
+      mouse.x + (Math.random()-0.5)*20,
+      mouse.y + (Math.random()-0.5)*20,
+      false
+    ));
+    spawnAcc--;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  LOOP
+// ─────────────────────────────────────────────
+let lastT = 0, fps = 0, fpsAcc = 0, fpsFrames = 0;
+
+function loop(t) {
+  requestAnimationFrame(loop);
+
+  // FPS
+  const dt = t - lastT; lastT = t;
+  fpsAcc += dt; fpsFrames++;
+  if (fpsAcc > 600) {
+    fps = Math.round(fpsFrames / fpsAcc * 1000);
+    fpsAcc = 0; fpsFrames = 0;
+    document.getElementById('s-fps').textContent   = fps;
+    document.getElementById('s-count').textContent = particles.length;
+  }
+
+  // clear (with fade trail)
+  ctx.fillStyle = 'rgba(5,5,8,0.25)';
+  ctx.fillRect(0, 0, W, H);
+
+  maybeSpawn();
+
+  // web lines first (behind particles)
+  if (currentMode === 2) drawWebLines();
+
+  // update + draw
+  particles = particles.filter(p => p.update());
+  particles.forEach(p => p.draw());
+
+  // refill if too few
+  while (particles.length < 120) particles.push(new Particle());
+}
+
+requestAnimationFrame(loop);
+
+// ─────────────────────────────────────────────
+//  CLOCK
+// ─────────────────────────────────────────────
+function updateClock() {
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    String(n.getHours()).padStart(2,'0') + ':' +
+    String(n.getMinutes()).padStart(2,'0') + ':' +
+    String(n.getSeconds()).padStart(2,'0');
+}
+updateClock();
+setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
