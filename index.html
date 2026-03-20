@@ -3,508 +3,341 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DAWNTHEDON</title>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+  <title>THE dawn space</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:ital,wght@0,300;1,300&family=Unbounded:wght@300;400&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --gold: #d4a853;
-      --gold2: #f0c97a;
-      --black: #080806;
-      --white: #f5f0e8;
-      --red: #c0392b;
-      --mono: 'DM Mono', monospace;
-      --display: 'Anton', sans-serif;
+      --bg:      #0d0c0a;
+      --surface: #141310;
+      --border:  rgba(255,255,255,0.07);
+      --text:    #e8e2d9;
+      --muted:   #6e6860;
+      --accent:  #d4a96a;
+      --soft:    #c4bdb4;
+      --serif:   'Cormorant Garamond', Georgia, serif;
+      --sans:    'Unbounded', sans-serif;
+      --mono:    'DM Mono', monospace;
     }
 
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     html { scroll-behavior: smooth; }
 
     body {
-      background: var(--black);
-      color: var(--white);
-      font-family: var(--mono);
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
       overflow-x: hidden;
       cursor: none;
     }
 
-    /* ── CURSOR ── */
+    /* cursor */
     #cur {
-      position: fixed;
-      width: 10px; height: 10px;
-      background: var(--gold);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%,-50%);
-      z-index: 9999;
-      transition: transform 0.06s;
+      position:fixed; width:6px; height:6px;
+      background: var(--accent); border-radius:50%;
+      pointer-events:none; z-index:9999;
+      transform:translate(-50%,-50%);
     }
     #cur2 {
-      position: fixed;
-      width: 32px; height: 32px;
-      border: 1px solid var(--gold);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%,-50%);
-      z-index: 9998;
-      opacity: 0.4;
-      transition: left 0.14s ease, top 0.14s ease;
+      position:fixed; width:24px; height:24px;
+      border:1px solid rgba(212,169,106,0.35); border-radius:50%;
+      pointer-events:none; z-index:9998;
+      transform:translate(-50%,-50%);
+      transition: left 0.12s ease, top 0.12s ease;
     }
 
-    /* ── NOISE OVERLAY ── */
+    /* grain */
     body::before {
-      content:'';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.035;
-      pointer-events: none;
-      z-index: 100;
-    }
-
-    /* ── HERO ── */
-    #hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 6vw;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* animated gold lines background */
-    #hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        repeating-linear-gradient(
-          90deg,
-          transparent,
-          transparent 80px,
-          rgba(212,168,83,0.03) 80px,
-          rgba(212,168,83,0.03) 81px
-        ),
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 80px,
-          rgba(212,168,83,0.03) 80px,
-          rgba(212,168,83,0.03) 81px
-        );
-      pointer-events: none;
-    }
-
-    .hero-eyebrow {
-      font-family: var(--mono);
-      font-size: clamp(0.55rem, 1.2vw, 0.75rem);
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0;
-      animation: fadeUp 0.8s 0.2s ease forwards;
-      margin-bottom: 1.5rem;
-    }
-
-    .hero-name {
-      font-family: var(--display);
-      font-size: clamp(4.5rem, 16vw, 14rem);
-      line-height: 0.88;
-      letter-spacing: -0.01em;
-      color: var(--white);
-      position: relative;
-      opacity: 0;
-      animation: fadeUp 0.9s 0.4s ease forwards;
-    }
-
-    /* gold outline ghost text behind */
-    .hero-name::before {
-      content: 'DAWNTHEDON';
-      position: absolute;
-      top: 6px; left: 6px;
-      -webkit-text-stroke: 1px var(--gold);
-      color: transparent;
-      pointer-events: none;
-      opacity: 0.18;
-    }
-
-    .hero-name .highlight {
-      color: var(--gold);
-      position: relative;
-      display: inline-block;
-    }
-    .hero-name .highlight::after {
-      content: '';
-      position: absolute;
-      bottom: 4px; left: 0; right: 0;
-      height: 3px;
-      background: var(--gold);
-      transform: scaleX(0);
-      transform-origin: left;
-      animation: lineIn 0.6s 1.4s ease forwards;
-    }
-
-    .hero-sub {
-      margin-top: 2.5rem;
-      font-size: clamp(0.65rem, 1.4vw, 0.85rem);
-      letter-spacing: 0.12em;
-      color: var(--white);
-      opacity: 0;
-      animation: fadeUp 0.8s 0.8s ease forwards;
-      max-width: 420px;
-      line-height: 1.9;
-    }
-
-    .hero-sub span { color: var(--gold); }
-
-    .scroll-hint {
-      position: absolute;
-      bottom: 40px; left: 6vw;
-      font-size: 0.5rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      opacity: 0;
-      color: var(--gold);
-      animation: fadeUp 0.8s 1.4s ease forwards;
-    }
-    .scroll-hint::before {
-      content: '↓  ';
-      animation: bounce 1.4s infinite;
-      display: inline-block;
+      content:''; position:fixed; inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity:0.04; pointer-events:none; z-index:500;
     }
 
     /* ── NAV ── */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      padding: 28px 6vw;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 500;
-      mix-blend-mode: normal;
-    }
-    nav::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 6vw; right: 6vw;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: 0.2;
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      padding:24px 6vw;
+      display:flex; justify-content:space-between; align-items:center;
+      background:rgba(13,12,10,0.8);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
     }
     .nav-logo {
-      font-family: var(--display);
-      font-size: 1.1rem;
-      letter-spacing: 0.12em;
-      color: var(--gold);
+      font-family:var(--sans); font-size:0.65rem; font-weight:300;
+      letter-spacing:0.2em; color:var(--text);
     }
-    .nav-links {
-      display: flex; gap: 36px; list-style: none;
-    }
+    .nav-logo span { color:var(--accent); }
+    .nav-links { display:flex; gap:32px; list-style:none; }
     .nav-links a {
-      font-size: 0.55rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--white);
-      text-decoration: none;
-      opacity: 0.6;
-      transition: opacity 0.2s, color 0.2s;
+      font-family:var(--mono); font-size:0.5rem; letter-spacing:0.2em;
+      text-transform:uppercase; color:var(--muted); text-decoration:none;
+      transition:color 0.2s;
     }
-    .nav-links a:hover { opacity: 1; color: var(--gold); }
+    .nav-links a:hover { color:var(--accent); }
 
-    /* ── MARQUEE ── */
-    .marquee-wrap {
-      overflow: hidden;
-      border-top: 1px solid rgba(212,168,83,0.15);
-      border-bottom: 1px solid rgba(212,168,83,0.15);
-      padding: 18px 0;
-      background: rgba(212,168,83,0.04);
-    }
-    .marquee-track {
-      display: flex;
-      white-space: nowrap;
-      animation: marquee 18s linear infinite;
-    }
-    .marquee-item {
-      font-family: var(--display);
-      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-      letter-spacing: 0.12em;
-      padding: 0 48px;
-      color: var(--gold);
-      opacity: 0.55;
-    }
-    .marquee-item.dim { color: var(--white); opacity: 0.12; }
-
-    /* ── SECTIONS ── */
-    section {
-      padding: 120px 6vw;
+    /* ── HERO ── */
+    #hero {
+      min-height:100vh;
+      display:flex; flex-direction:column; justify-content:flex-end;
+      padding:0 6vw 80px;
+      position:relative; overflow:hidden;
     }
 
-    .section-label {
-      font-size: 0.5rem;
-      letter-spacing: 0.35em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .section-label::after {
-      content: '';
-      flex: 1;
-      max-width: 80px;
-      height: 1px;
-      background: var(--gold);
-      opacity: 0.4;
+    /* big background word */
+    .hero-bg-word {
+      position:absolute;
+      bottom:-0.1em; left:-0.02em;
+      font-family:var(--serif);
+      font-size:clamp(10rem, 28vw, 26rem);
+      font-weight:600; font-style:italic;
+      color:transparent;
+      -webkit-text-stroke:1px rgba(212,169,106,0.08);
+      pointer-events:none; line-height:1; user-select:none;
+      white-space:nowrap;
     }
 
-    .section-title {
-      font-family: var(--display);
-      font-size: clamp(2.5rem, 6vw, 5rem);
-      letter-spacing: 0.04em;
-      line-height: 1;
-      margin-bottom: 48px;
+    .hero-content {
+      position:relative; z-index:2;
+      max-width:700px;
+    }
+    .hero-tag {
+      font-family:var(--mono); font-size:0.5rem; letter-spacing:0.3em;
+      text-transform:uppercase; color:var(--accent); margin-bottom:32px;
+      opacity:0; animation:fadeUp 0.7s 0.2s ease forwards;
+    }
+    .hero-name {
+      font-family:var(--serif);
+      font-size:clamp(3rem,9vw,8rem);
+      font-weight:300; font-style:italic;
+      line-height:1; letter-spacing:-0.01em;
+      opacity:0; animation:fadeUp 0.9s 0.35s ease forwards;
+      color:var(--text);
+    }
+    .hero-name strong {
+      font-weight:600; font-style:normal;
+      color:var(--accent); display:block;
+    }
+    .hero-sub {
+      margin-top:28px;
+      font-size:clamp(1rem,2vw,1.3rem);
+      font-weight:300; line-height:1.7; color:var(--soft);
+      max-width:480px;
+      opacity:0; animation:fadeUp 0.8s 0.55s ease forwards;
     }
 
-    /* ── ABOUT ── */
-    #about {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
+    /* ── BIBLE QUOTE ── */
+    #quote {
+      padding:100px 6vw;
+      display:flex; justify-content:center; align-items:center;
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      text-align:center;
+      background:var(--surface);
+      position:relative; overflow:hidden;
     }
-    @media (max-width: 768px) { #about { grid-template-columns: 1fr; gap: 48px; } }
-
-    .about-text {
-      font-size: clamp(0.8rem, 1.5vw, 1rem);
-      line-height: 2;
-      opacity: 0.75;
-      letter-spacing: 0.02em;
+    #quote::before {
+      content:'❝';
+      position:absolute; top:20px; left:50%;
+      transform:translateX(-50%);
+      font-size:8rem; color:var(--accent);
+      opacity:0.04; line-height:1; pointer-events:none;
+      font-family:Georgia, serif;
     }
-    .about-text strong { color: var(--gold); font-style: italic; font-weight: 300; }
-
-    .about-right {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
+    .quote-inner { max-width:700px; position:relative; z-index:1; }
+    .quote-text {
+      font-family:var(--serif);
+      font-size:clamp(1.6rem,4vw,3rem);
+      font-style:italic; font-weight:300;
+      line-height:1.5; color:var(--text);
+      letter-spacing:0.01em;
     }
-
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding: 20px 0;
-      border-bottom: 1px solid rgba(245,240,232,0.07);
-    }
-    .stat-row:first-child { border-top: 1px solid rgba(245,240,232,0.07); }
-    .stat-num {
-      font-family: var(--display);
-      font-size: clamp(2rem, 4vw, 3.5rem);
-      color: var(--gold);
-      letter-spacing: 0.04em;
-    }
-    .stat-desc {
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      opacity: 0.45;
-      text-align: right;
+    .quote-text em { color:var(--accent); font-style:italic; }
+    .quote-ref {
+      display:block; margin-top:24px;
+      font-family:var(--mono); font-size:0.52rem;
+      letter-spacing:0.25em; text-transform:uppercase;
+      color:var(--muted);
     }
 
-    /* ── WORK / CARDS ── */
-    #work { background: rgba(212,168,83,0.02); }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 2px;
+    /* ── SECTION SHARED ── */
+    .sec-label {
+      font-family:var(--mono); font-size:0.5rem; letter-spacing:0.3em;
+      text-transform:uppercase; color:var(--accent); margin-bottom:16px;
+    }
+    .sec-title {
+      font-family:var(--serif);
+      font-size:clamp(2rem,5vw,4rem);
+      font-weight:300; font-style:italic; line-height:1.1;
+      margin-bottom:48px;
     }
 
-    .card {
-      position: relative;
-      aspect-ratio: 3/4;
-      background: #0f0f0c;
-      overflow: hidden;
-      cursor: pointer;
-      group: true;
+    /* ── MY POSTS ── */
+    #posts { padding:100px 6vw; }
+
+    #posts-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(280px,1fr));
+      gap:1px;
+      background:var(--border);
+      border:1px solid var(--border);
+    }
+    .post-card {
+      background:var(--bg); padding:36px 28px;
+      transition:background 0.3s;
+      position:relative; overflow:hidden;
+    }
+    .post-card:hover { background:var(--surface); }
+    .post-tag {
+      font-family:var(--mono); font-size:0.48rem; letter-spacing:0.22em;
+      text-transform:uppercase; color:var(--accent); margin-bottom:16px;
+    }
+    .post-date {
+      font-family:var(--mono); font-size:0.5rem; letter-spacing:0.12em;
+      color:var(--muted); margin-bottom:14px;
+    }
+    .post-title {
+      font-family:var(--serif);
+      font-size:clamp(1.1rem,2vw,1.5rem);
+      font-weight:400; font-style:italic; line-height:1.25;
+      margin-bottom:14px;
+    }
+    .post-body {
+      font-size:0.85rem; line-height:1.85; color:var(--soft); font-weight:300;
+    }
+    .posts-loading {
+      grid-column:1/-1; padding:60px; text-align:center;
+      font-family:var(--mono); font-size:0.6rem; letter-spacing:0.2em; color:var(--muted);
+    }
+    .posts-error {
+      grid-column:1/-1; padding:40px;
+      font-family:var(--mono); font-size:0.65rem;
+      line-height:2; color:var(--accent);
+      border:1px solid rgba(212,169,106,0.2);
     }
 
-    .card-bg {
-      position: absolute;
-      inset: 0;
-      transition: transform 0.6s cubic-bezier(.16,1,.3,1);
-    }
-    .card:hover .card-bg { transform: scale(1.06); }
-
-    .card-bg-1 { background: linear-gradient(135deg, #1a1206 0%, #2d1f08 50%, #0d0d0a 100%); }
-    .card-bg-2 { background: linear-gradient(135deg, #0d0a14 0%, #1a0a12 50%, #080606 100%); }
-    .card-bg-3 { background: linear-gradient(135deg, #080d0a 0%, #0a1a10 50%, #060808 100%); }
-
-    /* geometric card art */
-    .card-art {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--display);
-      font-size: clamp(4rem, 8vw, 7rem);
-      opacity: 0.07;
-      letter-spacing: 0.1em;
-      color: var(--gold);
-      transition: opacity 0.4s;
-    }
-    .card:hover .card-art { opacity: 0.14; }
-
-    .card-content {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      padding: 28px;
-      background: linear-gradient(to top, rgba(8,8,6,0.95) 0%, transparent 100%);
-      transform: translateY(8px);
-      transition: transform 0.4s ease;
-    }
-    .card:hover .card-content { transform: translateY(0); }
-
-    .card-tag {
-      font-size: 0.48rem;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0.7;
-      margin-bottom: 8px;
-    }
-    .card-title {
-      font-family: var(--display);
-      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-      letter-spacing: 0.06em;
-      line-height: 1.1;
-      margin-bottom: 10px;
-    }
-    .card-desc {
-      font-size: 0.6rem;
-      letter-spacing: 0.1em;
-      opacity: 0.5;
-      line-height: 1.7;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease;
-    }
-    .card:hover .card-desc { max-height: 80px; }
-
-    /* ── CONTACT ── */
-    #contact {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 48px;
+    /* ── GALLERY ── */
+    #gallery {
+      padding:100px 6vw;
+      background:var(--surface);
+      border-top:1px solid var(--border);
     }
 
-    #contact .section-label { justify-content: center; }
-    #contact .section-label::after { display: none; }
+    .gallery-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(220px,1fr));
+      gap:3px;
+    }
+    .gallery-slot {
+      aspect-ratio:1;
+      background:var(--bg);
+      border:1px solid var(--border);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:12px; position:relative; overflow:hidden;
+      transition:border-color 0.3s;
+    }
+    .gallery-slot:hover { border-color:rgba(212,169,106,0.3); }
+    .gallery-slot img {
+      width:100%; height:100%; object-fit:cover;
+      position:absolute; inset:0;
+    }
+    .gallery-slot.empty .slot-icon {
+      font-size:1.5rem; opacity:0.15;
+    }
+    .gallery-slot.empty .slot-text {
+      font-family:var(--mono); font-size:0.45rem;
+      letter-spacing:0.2em; text-transform:uppercase;
+      color:var(--muted);
+    }
 
-    .contact-headline {
-      font-family: var(--display);
-      font-size: clamp(3rem, 10vw, 9rem);
-      letter-spacing: 0.04em;
-      line-height: 0.9;
-      color: var(--white);
-      position: relative;
-    }
-    .contact-headline em {
-      color: var(--gold);
-      font-style: normal;
-      display: block;
+    /* ── COMMUNITY WALL ── */
+    #wall {
+      padding:100px 6vw;
+      border-top:1px solid var(--border);
     }
 
-    .cta-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--gold);
-      color: var(--black);
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      font-weight: 400;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 18px 40px;
-      transition: background 0.2s, transform 0.2s;
-      cursor: pointer;
-      border: none;
+    .wall-form {
+      background:var(--surface);
+      border:1px solid var(--border);
+      padding:40px;
+      margin-bottom:48px;
     }
-    .cta-btn:hover { background: var(--gold2); transform: translateY(-2px); }
-    .cta-btn .arrow { font-size: 1rem; }
+    .wall-form-title {
+      font-family:var(--serif); font-size:1.4rem; font-style:italic;
+      font-weight:300; margin-bottom:28px; color:var(--text);
+    }
+    .form-row { display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+    .form-input, .form-textarea {
+      background:var(--bg);
+      border:1px solid var(--border);
+      color:var(--text);
+      font-family:var(--mono); font-size:0.62rem; letter-spacing:0.05em;
+      padding:14px 18px;
+      outline:none; resize:none; width:100%;
+      transition:border-color 0.2s;
+      -webkit-appearance:none;
+    }
+    .form-input:focus, .form-textarea:focus { border-color:rgba(212,169,106,0.4); }
+    .form-input::placeholder, .form-textarea::placeholder { color:var(--muted); }
+    .form-input.half { flex:1; min-width:140px; }
+    .form-textarea { height:100px; }
+    .submit-btn {
+      margin-top:12px;
+      background:transparent;
+      border:1px solid var(--accent);
+      color:var(--accent);
+      font-family:var(--mono); font-size:0.55rem;
+      letter-spacing:0.25em; text-transform:uppercase;
+      padding:14px 36px; cursor:pointer;
+      transition:background 0.2s, color 0.2s;
+    }
+    .submit-btn:hover { background:var(--accent); color:var(--bg); }
 
-    .social-row {
-      display: flex; gap: 32px;
+    #wall-posts {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(260px,1fr));
+      gap:1px;
+      background:var(--border);
+      border:1px solid var(--border);
     }
-    .social-link {
-      font-size: 0.5rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--white);
-      text-decoration: none;
-      opacity: 0.35;
-      transition: opacity 0.2s, color 0.2s;
+    .wall-card {
+      background:var(--bg); padding:28px;
+      transition:background 0.25s;
     }
-    .social-link:hover { opacity: 1; color: var(--gold); }
+    .wall-card:hover { background:var(--surface); }
+    .wall-from {
+      font-family:var(--mono); font-size:0.5rem; letter-spacing:0.2em;
+      text-transform:uppercase; color:var(--accent); margin-bottom:10px;
+    }
+    .wall-msg {
+      font-family:var(--serif); font-size:1rem; font-style:italic;
+      font-weight:300; line-height:1.7; color:var(--soft);
+    }
+    .wall-time {
+      margin-top:14px; font-family:var(--mono);
+      font-size:0.45rem; letter-spacing:0.15em; color:var(--muted);
+    }
+    .wall-empty {
+      grid-column:1/-1; padding:60px; text-align:center;
+      font-family:var(--serif); font-style:italic; font-size:1rem; color:var(--muted);
+    }
 
     /* ── FOOTER ── */
     footer {
-      padding: 40px 6vw;
-      border-top: 1px solid rgba(212,168,83,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.48rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      opacity: 0.3;
+      padding:40px 6vw; border-top:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+    }
+    footer span {
+      font-family:var(--mono); font-size:0.48rem; letter-spacing:0.18em;
+      text-transform:uppercase; color:var(--muted);
     }
 
-    /* ── ANIMATIONS ── */
+    /* animations */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:none; }
     }
-    @keyframes lineIn {
-      to { transform: scaleX(1); }
-    }
-    @keyframes marquee {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(5px); }
-    }
-
-    /* scroll reveal */
-    .reveal {
-      opacity: 0;
-      transform: translateY(32px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: none;
-    }
-
-    /* glitch effect on hover of name */
-    .hero-name:hover { animation: glitch 0.3s ease; }
-    @keyframes glitch {
-      0%  { clip-path: none; transform: none; }
-      20% { clip-path: inset(20% 0 60% 0); transform: translate(-4px, 0); }
-      40% { clip-path: inset(60% 0 10% 0); transform: translate(4px, 0); }
-      60% { clip-path: none; transform: translate(-2px, 0); }
-      80% { clip-path: inset(10% 0 80% 0); transform: translate(2px, 0); }
-      100%{ clip-path: none; transform: none; }
-    }
+    .reveal { opacity:0; transform:translateY(24px); transition:opacity 0.9s ease, transform 0.9s ease; }
+    .reveal.visible { opacity:1; transform:none; }
   </style>
 </head>
 <body>
@@ -514,180 +347,190 @@
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">DTD</div>
+  <div class="nav-logo">the <span>dawn</span> space</div>
   <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#work">Work</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#posts">posts</a></li>
+    <li><a href="#gallery">photos</a></li>
+    <li><a href="#wall">the wall</a></li>
   </ul>
 </nav>
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-eyebrow">Est. here. Now. Forever.</div>
-  <h1 class="hero-name">DAWN<br>THE<span class="highlight">DON</span></h1>
-  <p class="hero-sub">
-    Creative. Engineer. Visionary.<br>
-    <span>Code meets art</span> — built different, moving different.
-  </p>
-  <div class="scroll-hint">Scroll to explore</div>
-</section>
-
-<!-- MARQUEE -->
-<div class="marquee-wrap">
-  <div class="marquee-track">
-    <span class="marquee-item">DAWNTHEDON</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">CREATIVE</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">ENGINEER</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">VISIONARY</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">DAWNTHEDON</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">CREATIVE</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">ENGINEER</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">VISIONARY</span>
-    <span class="marquee-item dim">✦</span>
-    <!-- duplicate for seamless loop -->
-    <span class="marquee-item">DAWNTHEDON</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">CREATIVE</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">ENGINEER</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">VISIONARY</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">DAWNTHEDON</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">CREATIVE</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">ENGINEER</span>
-    <span class="marquee-item dim">✦</span>
-    <span class="marquee-item">VISIONARY</span>
-    <span class="marquee-item dim">✦</span>
-  </div>
-</div>
-
-<!-- ABOUT -->
-<section>
-  <div id="about" class="reveal">
-    <div>
-      <div class="section-label">001 — About</div>
-      <h2 class="section-title">THE STORY<br>SO FAR</h2>
-      <p class="about-text">
-        I'm <strong>Dawn</strong> — a builder at the intersection of
-        technology and creative vision. From <strong>engineering circuits</strong>
-        to crafting animated worlds, I approach every project like it's
-        a statement.<br><br>
-        Not just making things that work —
-        making things that <strong>hit different</strong>.
-      </p>
-    </div>
-    <div class="about-right">
-      <div class="stat-row">
-        <span class="stat-num">∞</span>
-        <span class="stat-desc">Ideas in progress</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-num">01</span>
-        <span class="stat-desc">Of a kind</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-num">24</span>
-        <span class="stat-desc">Hours dedicated</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-num">0</span>
-        <span class="stat-desc">Limits accepted</span>
-      </div>
-    </div>
+  <div class="hero-bg-word">dawn</div>
+  <div class="hero-content">
+    <div class="hero-tag">a space for everything</div>
+    <h1 class="hero-name">
+      the<br>
+      <strong>dawn space.</strong>
+    </h1>
+    <p class="hero-sub">
+      just a teen with a few ideas, and a corner of the internet to put them.
+    </p>
   </div>
 </section>
 
-<!-- WORK -->
-<section id="work">
-  <div class="section-label reveal">002 — Work</div>
-  <h2 class="section-title reveal">SELECTED<br>PROJECTS</h2>
-  <div class="cards reveal">
-    <div class="card">
-      <div class="card-bg card-bg-1"></div>
-      <div class="card-art">01</div>
-      <div class="card-content">
-        <div class="card-tag">Engineering</div>
-        <div class="card-title">CIRCUITS &<br>SYSTEMS</div>
-        <div class="card-desc">Analog & digital electronics — where logic meets the physical world.</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-bg card-bg-2"></div>
-      <div class="card-art">02</div>
-      <div class="card-content">
-        <div class="card-tag">Creative Code</div>
-        <div class="card-title">MOTION &<br>ANIMATION</div>
-        <div class="card-desc">Bringing ideas to life through code — Manim, Canvas, and beyond.</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-bg card-bg-3"></div>
-      <div class="card-art">03</div>
-      <div class="card-content">
-        <div class="card-tag">Mathematics</div>
-        <div class="card-title">LINEAR<br>ALGEBRA</div>
-        <div class="card-desc">Vectors, spaces, transformations — the language underneath everything.</div>
-      </div>
-    </div>
+<!-- BIBLE QUOTE -->
+<section id="quote">
+  <div class="quote-inner reveal">
+    <p class="quote-text">
+      "Blessed are the pure in heart,<br>
+      for <em>they shall know TRUTH.</em>"
+    </p>
+    <span class="quote-ref">Matthew 5 : 8</span>
   </div>
 </section>
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-label reveal">003 — Contact</div>
-  <div class="contact-headline reveal">
-    LET'S<br><em>CONNECT.</em>
+<!-- MY POSTS -->
+<section id="posts">
+  <div class="reveal">
+    <div class="sec-label">from me</div>
+    <h2 class="sec-title">what's on my mind.</h2>
   </div>
-  <a class="cta-btn reveal" href="mailto:hello@dawnthedon.com">
-    Get in touch <span class="arrow">→</span>
-  </a>
-  <div class="social-row reveal">
-    <a class="social-link" href="#">Twitter</a>
-    <a class="social-link" href="#">Instagram</a>
-    <a class="social-link" href="#">GitHub</a>
-    <a class="social-link" href="#">LinkedIn</a>
+  <div id="posts-grid">
+    <div class="posts-loading">loading...</div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="reveal">
+    <div class="sec-label">visuals</div>
+    <h2 class="sec-title">pictures &amp; things.</h2>
+  </div>
+  <div class="gallery-grid reveal" id="gallery-grid">
+    <!-- slots — replace src with your image URLs in posts.json or directly here -->
+    <div class="gallery-slot empty"><span class="slot-icon">◻</span><span class="slot-text">add photo</span></div>
+    <div class="gallery-slot empty"><span class="slot-icon">◻</span><span class="slot-text">add photo</span></div>
+    <div class="gallery-slot empty"><span class="slot-icon">◻</span><span class="slot-text">add photo</span></div>
+    <div class="gallery-slot empty"><span class="slot-icon">◻</span><span class="slot-text">add photo</span></div>
+    <div class="gallery-slot empty"><span class="slot-icon">◻</span><span class="slot-text">add photo</span></div>
+    <div class="gallery-slot empty"><span class="slot-icon">◻</span><span class="slot-text">add photo</span></div>
+  </div>
+</section>
+
+<!-- COMMUNITY WALL -->
+<section id="wall">
+  <div class="reveal">
+    <div class="sec-label">from you</div>
+    <h2 class="sec-title">the wall.</h2>
+  </div>
+
+  <div class="wall-form reveal">
+    <div class="wall-form-title">leave something here.</div>
+    <div class="form-row">
+      <input class="form-input half" id="w-name" placeholder="your name" maxlength="40"/>
+      <input class="form-input half" id="w-tag" placeholder="vibe / tag (optional)" maxlength="20"/>
+    </div>
+    <textarea class="form-textarea" id="w-msg" placeholder="say something..." maxlength="300"></textarea>
+    <button class="submit-btn" onclick="submitWall()">post it →</button>
+  </div>
+
+  <div id="wall-posts">
+    <div class="wall-empty">nothing here yet. be the first.</div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <span>© 2026 Dawnthedon</span>
-  <span>Built from scratch</span>
-  <span>All rights reserved</span>
+  <span>© 2026 the dawn space</span>
+  <span>built from scratch</span>
+  <span>thedawnspace.vercel.app</span>
 </footer>
 
 <script>
-  // cursor
-  const cur = document.getElementById('cur');
-  const cur2 = document.getElementById('cur2');
-  document.addEventListener('mousemove', e => {
-    cur.style.left  = e.clientX + 'px';
-    cur.style.top   = e.clientY + 'px';
-    setTimeout(() => {
-      cur2.style.left = e.clientX + 'px';
-      cur2.style.top  = e.clientY + 'px';
-    }, 80);
-  });
+// ── cursor ──
+const cur = document.getElementById('cur');
+const cur2 = document.getElementById('cur2');
+document.addEventListener('mousemove', e => {
+  cur.style.left = e.clientX+'px'; cur.style.top = e.clientY+'px';
+  setTimeout(() => { cur2.style.left = e.clientX+'px'; cur2.style.top = e.clientY+'px'; }, 80);
+});
 
-  // scroll reveal
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('visible'); }
+// ── scroll reveal ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── load dawn's posts ──
+async function loadPosts() {
+  const grid = document.getElementById('posts-grid');
+  try {
+    const res   = await fetch('./posts.json');
+    if (!res.ok) throw new Error('posts.json not found');
+    const posts = await res.json();
+    grid.innerHTML = '';
+    [...posts].reverse().forEach((p, i) => {
+      const c = document.createElement('div');
+      c.className = 'post-card reveal';
+      c.style.transitionDelay = (i * 0.07) + 's';
+      c.innerHTML = `
+        <div class="post-tag">${p.tag || 'note'}</div>
+        <div class="post-date">${p.date}</div>
+        <h3 class="post-title">${p.title}</h3>
+        <p class="post-body">${p.body}</p>`;
+      grid.appendChild(c);
+      obs.observe(c);
     });
-  }, { threshold: 0.12 });
+  } catch(err) {
+    grid.innerHTML = `<div class="posts-error">⚠ couldn't load posts.json — make sure it's uploaded to github alongside index.html</div>`;
+  }
+}
+loadPosts();
 
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+// ── gallery — load from localStorage (or edit src directly below) ──
+// To add a real photo: upload it to your GitHub repo and set the src here
+// e.g. <img src="./photos/myphoto.jpg">
+// For now slots are placeholders.
+
+// ── community wall (stored in browser localStorage) ──
+function getWallPosts() {
+  try { return JSON.parse(localStorage.getItem('tds_wall') || '[]'); } catch { return []; }
+}
+function saveWallPosts(posts) {
+  localStorage.setItem('tds_wall', JSON.stringify(posts));
+}
+function renderWall() {
+  const container = document.getElementById('wall-posts');
+  const posts = getWallPosts();
+  if (!posts.length) {
+    container.innerHTML = '<div class="wall-empty">nothing here yet. be the first.</div>';
+    return;
+  }
+  container.innerHTML = '';
+  [...posts].reverse().forEach((p, i) => {
+    const c = document.createElement('div');
+    c.className = 'wall-card reveal';
+    c.style.transitionDelay = (i * 0.06) + 's';
+    c.innerHTML = `
+      <div class="wall-from">${p.name || 'anonymous'}${p.tag ? ' · ' + p.tag : ''}</div>
+      <p class="wall-msg">${p.msg}</p>
+      <div class="wall-time">${p.time}</div>`;
+    container.appendChild(c);
+    obs.observe(c);
+  });
+}
+function submitWall() {
+  const name = document.getElementById('w-name').value.trim();
+  const tag  = document.getElementById('w-tag').value.trim();
+  const msg  = document.getElementById('w-msg').value.trim();
+  if (!msg) return;
+  const posts = getWallPosts();
+  posts.push({
+    name: name || 'anonymous',
+    tag,
+    msg,
+    time: new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' })
+  });
+  saveWallPosts(posts);
+  document.getElementById('w-name').value = '';
+  document.getElementById('w-tag').value  = '';
+  document.getElementById('w-msg').value  = '';
+  renderWall();
+  document.getElementById('wall-posts').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+renderWall();
 </script>
 </body>
 </html>
