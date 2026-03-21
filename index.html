@@ -3,116 +3,484 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>THE dawn space</title>
-
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
+  <title>the dawn space</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:ital,wght@0,300;1,300&family=Unbounded:wght@300;400&display=swap" rel="stylesheet"/>
   <style>
+    :root {
+      --bg:      #0d0c0a;
+      --surface: #141310;
+      --border:  rgba(255,255,255,0.07);
+      --text:    #e8e2d9;
+      --muted:   #6e6860;
+      --accent:  #d4a96a;
+      --soft:    #c4bdb4;
+      --serif:   'Cormorant Garamond', Georgia, serif;
+      --sans:    'Unbounded', sans-serif;
+      --mono:    'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+
     body {
-      background: black;
-      color: white;
-      font-family: sans-serif;
-      padding: 20px;
+      background: var(--bg); color: var(--text);
+      font-family: var(--serif); overflow-x: hidden; cursor: none;
     }
-    .wall-card {
-      border: 1px solid gray;
-      padding: 10px;
-      margin: 10px 0;
+
+    #cur {
+      position:fixed; width:6px; height:6px;
+      background:var(--accent); border-radius:50%;
+      pointer-events:none; z-index:9999; transform:translate(-50%,-50%);
     }
+    #cur2 {
+      position:fixed; width:24px; height:24px;
+      border:1px solid rgba(212,169,106,0.35); border-radius:50%;
+      pointer-events:none; z-index:9998; transform:translate(-50%,-50%);
+      transition:left 0.12s ease, top 0.12s ease;
+    }
+
+    body::before {
+      content:''; position:fixed; inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity:0.04; pointer-events:none; z-index:500;
+    }
+
+    /* NAV */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      padding:24px 6vw; display:flex; justify-content:space-between; align-items:center;
+      background:rgba(13,12,10,0.85); backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-logo { font-family:var(--sans); font-size:0.65rem; font-weight:300; letter-spacing:0.2em; }
+    .nav-logo span { color:var(--accent); }
+    .nav-links { display:flex; gap:32px; list-style:none; }
+    .nav-links a {
+      font-family:var(--mono); font-size:0.5rem; letter-spacing:0.2em;
+      text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s;
+    }
+    .nav-links a:hover { color:var(--accent); }
+
+    /* HERO */
+    #hero {
+      min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end;
+      padding:0 6vw 80px; position:relative; overflow:hidden;
+    }
+    .hero-bg-word {
+      position:absolute; bottom:-0.1em; left:-0.02em;
+      font-family:var(--serif); font-size:clamp(10rem,28vw,26rem);
+      font-weight:600; font-style:italic; color:transparent;
+      -webkit-text-stroke:1px rgba(212,169,106,0.06);
+      pointer-events:none; line-height:1; user-select:none; white-space:nowrap;
+    }
+    .hero-content { position:relative; z-index:2; max-width:700px; }
+    .hero-tag {
+      font-family:var(--mono); font-size:0.5rem; letter-spacing:0.3em;
+      text-transform:uppercase; color:var(--accent); margin-bottom:32px;
+      opacity:0; animation:fadeUp 0.7s 0.2s ease forwards;
+    }
+    .hero-name {
+      font-family:var(--serif); font-size:clamp(3rem,9vw,8rem);
+      font-weight:300; font-style:italic; line-height:1; letter-spacing:-0.01em;
+      opacity:0; animation:fadeUp 0.9s 0.35s ease forwards;
+    }
+    .hero-name strong { font-weight:600; font-style:normal; color:var(--accent); display:block; }
+    .hero-sub {
+      margin-top:28px; font-size:clamp(1rem,2vw,1.3rem);
+      font-weight:300; line-height:1.7; color:var(--soft); max-width:480px;
+      opacity:0; animation:fadeUp 0.8s 0.55s ease forwards;
+    }
+
+    /* QUOTE */
+    #quote {
+      padding:100px 6vw; display:flex; justify-content:center; align-items:center;
+      border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+      text-align:center; background:var(--surface); position:relative; overflow:hidden;
+    }
+    #quote::before {
+      content:'❝'; position:absolute; top:20px; left:50%; transform:translateX(-50%);
+      font-size:8rem; color:var(--accent); opacity:0.04; line-height:1;
+      pointer-events:none; font-family:Georgia,serif;
+    }
+    .quote-inner { max-width:700px; position:relative; z-index:1; }
+    .quote-text {
+      font-family:var(--serif); font-size:clamp(1.6rem,4vw,3rem);
+      font-style:italic; font-weight:300; line-height:1.5; color:var(--text);
+    }
+    .quote-text em { color:var(--accent); }
+    .quote-ref {
+      display:block; margin-top:24px; font-family:var(--mono);
+      font-size:0.52rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted);
+    }
+
+    /* SHARED */
+    .sec-label {
+      font-family:var(--mono); font-size:0.5rem; letter-spacing:0.3em;
+      text-transform:uppercase; color:var(--accent); margin-bottom:16px;
+    }
+    .sec-title {
+      font-family:var(--serif); font-size:clamp(2rem,5vw,4rem);
+      font-weight:300; font-style:italic; line-height:1.1; margin-bottom:48px;
+    }
+
+    /* POSTS */
+    #posts { padding:100px 6vw; }
+    #posts-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:1px; background:var(--border); border:1px solid var(--border);
+    }
+    .post-card { background:var(--bg); padding:36px 28px; transition:background 0.3s; }
+    .post-card:hover { background:var(--surface); }
+    .post-tag {
+      font-family:var(--mono); font-size:0.48rem; letter-spacing:0.22em;
+      text-transform:uppercase; color:var(--accent); margin-bottom:16px;
+    }
+    .post-date { font-family:var(--mono); font-size:0.5rem; letter-spacing:0.12em; color:var(--muted); margin-bottom:14px; }
+    .post-title { font-family:var(--serif); font-size:clamp(1.1rem,2vw,1.5rem); font-weight:400; font-style:italic; line-height:1.25; margin-bottom:14px; }
+    .post-body { font-size:0.85rem; line-height:1.85; color:var(--soft); font-weight:300; }
+    .posts-loading { grid-column:1/-1; padding:60px; text-align:center; font-family:var(--mono); font-size:0.6rem; letter-spacing:0.2em; color:var(--muted); }
+    .posts-error { grid-column:1/-1; padding:40px; font-family:var(--mono); font-size:0.6rem; line-height:2; color:var(--accent); }
+
+    /* GALLERY */
+    #gallery {
+      padding:100px 6vw; background:var(--surface); border-top:1px solid var(--border);
+    }
+
+    .gallery-hint {
+      font-family:var(--mono); font-size:0.5rem; letter-spacing:0.18em;
+      color:var(--muted); margin-bottom:40px; line-height:2;
+    }
+    .gallery-hint span { color:var(--accent); }
+
+    #gallery-grid {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:3px;
+    }
+
+    .gallery-slot {
+      aspect-ratio:1; background:var(--bg); border:1px solid var(--border);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:10px; position:relative; overflow:hidden; transition:border-color 0.3s;
+    }
+    .gallery-slot:hover { border-color:rgba(212,169,106,0.3); }
+
+    /* real image slot */
+    .gallery-slot.filled img {
+      width:100%; height:100%; object-fit:cover;
+      position:absolute; inset:0; transition:transform 0.4s ease;
+    }
+    .gallery-slot.filled:hover img { transform:scale(1.04); }
+    .gallery-slot.filled .img-overlay {
+      position:absolute; inset:0;
+      background:rgba(13,12,10,0); transition:background 0.3s;
+      display:flex; align-items:flex-end; padding:16px;
+    }
+    .gallery-slot.filled:hover .img-overlay { background:rgba(13,12,10,0.45); }
+    .img-name {
+      font-family:var(--mono); font-size:0.45rem; letter-spacing:0.15em;
+      color:var(--text); opacity:0; transition:opacity 0.3s; text-transform:uppercase;
+      word-break:break-all;
+    }
+    .gallery-slot.filled:hover .img-name { opacity:1; }
+
+    /* empty slot */
+    .gallery-slot.empty .slot-icon { font-size:1.4rem; opacity:0.1; }
+    .gallery-slot.empty .slot-text {
+      font-family:var(--mono); font-size:0.45rem;
+      letter-spacing:0.2em; text-transform:uppercase; color:var(--muted);
+    }
+
+    /* loading / empty state */
+    .gallery-loading {
+      grid-column:1/-1; padding:60px; text-align:center;
+      font-family:var(--mono); font-size:0.6rem; letter-spacing:0.2em; color:var(--muted);
+    }
+
+    /* lightbox */
+    #lightbox {
+      display:none; position:fixed; inset:0; z-index:9000;
+      background:rgba(13,12,10,0.96); align-items:center; justify-content:center;
+      cursor:pointer;
+    }
+    #lightbox.open { display:flex; }
+    #lightbox img {
+      max-width:90vw; max-height:90vh; object-fit:contain;
+      border:1px solid var(--border);
+    }
+    #lightbox-close {
+      position:absolute; top:28px; right:32px;
+      font-family:var(--mono); font-size:0.6rem; letter-spacing:0.2em;
+      color:var(--muted); cursor:pointer; text-transform:uppercase;
+      transition:color 0.2s;
+    }
+    #lightbox-close:hover { color:var(--accent); }
+
+    /* WALL */
+    #wall { padding:100px 6vw; border-top:1px solid var(--border); }
+    .wall-form {
+      background:var(--surface); border:1px solid var(--border);
+      padding:40px; margin-bottom:48px;
+    }
+    .wall-form-title { font-family:var(--serif); font-size:1.4rem; font-style:italic; font-weight:300; margin-bottom:28px; }
+    .form-row { display:flex; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+    .form-input, .form-textarea {
+      background:var(--bg); border:1px solid var(--border); color:var(--text);
+      font-family:var(--mono); font-size:0.62rem; letter-spacing:0.05em;
+      padding:14px 18px; outline:none; resize:none; width:100%; transition:border-color 0.2s;
+    }
+    .form-input:focus, .form-textarea:focus { border-color:rgba(212,169,106,0.4); }
+    .form-input::placeholder, .form-textarea::placeholder { color:var(--muted); }
+    .form-input.half { flex:1; min-width:140px; }
+    .form-textarea { height:100px; }
+    .submit-btn {
+      margin-top:12px; background:transparent; border:1px solid var(--accent);
+      color:var(--accent); font-family:var(--mono); font-size:0.55rem;
+      letter-spacing:0.25em; text-transform:uppercase; padding:14px 36px;
+      cursor:pointer; transition:background 0.2s, color 0.2s;
+    }
+    .submit-btn:hover { background:var(--accent); color:var(--bg); }
+    .submit-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .wall-status { margin-top:12px; font-family:var(--mono); font-size:0.52rem; letter-spacing:0.15em; color:var(--accent); min-height:18px; }
+
+    #wall-posts {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+      gap:1px; background:var(--border); border:1px solid var(--border);
+    }
+    .wall-card { background:var(--bg); padding:28px; transition:background 0.25s; }
+    .wall-card:hover { background:var(--surface); }
+    .wall-from { font-family:var(--mono); font-size:0.5rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+    .wall-msg { font-family:var(--serif); font-size:1rem; font-style:italic; font-weight:300; line-height:1.7; color:var(--soft); }
+    .wall-time { margin-top:14px; font-family:var(--mono); font-size:0.45rem; letter-spacing:0.15em; color:var(--muted); }
+    .wall-empty { grid-column:1/-1; padding:60px; text-align:center; font-family:var(--serif); font-style:italic; font-size:1rem; color:var(--muted); }
+
+    /* FOOTER */
+    footer {
+      padding:40px 6vw; border-top:1px solid var(--border);
+      display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+    }
+    footer span { font-family:var(--mono); font-size:0.48rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:none; }
+    }
+    .reveal { opacity:0; transform:translateY(24px); transition:opacity 0.9s ease, transform 0.9s ease; }
+    .reveal.visible { opacity:1; transform:none; }
   </style>
 </head>
-
 <body>
 
-<h1>THE DAWN SPACE</h1>
+<div id="cur"></div>
+<div id="cur2"></div>
 
-<h2>Leave a message</h2>
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()">
+  <div id="lightbox-close">close ✕</div>
+  <img id="lightbox-img" src="" alt=""/>
+</div>
 
-<input id="w-name" placeholder="your name"><br><br>
-<input id="w-tag" placeholder="tag (optional)"><br><br>
-<textarea id="w-msg" placeholder="say something"></textarea><br><br>
+<nav>
+  <div class="nav-logo">the <span>dawn</span> space</div>
+  <ul class="nav-links">
+    <li><a href="#posts">posts</a></li>
+    <li><a href="#gallery">photos</a></li>
+    <li><a href="#wall">the wall</a></li>
+  </ul>
+</nav>
 
-<button onclick="submitWall()">Post</button>
+<section id="hero">
+  <div class="hero-bg-word">dawn</div>
+  <div class="hero-content">
+    <div class="hero-tag">a space for everything</div>
+    <h1 class="hero-name">the<br><strong>dawn space.</strong></h1>
+    <p class="hero-sub">just a girl, a lot of thoughts, and a corner of the internet to put them.</p>
+  </div>
+</section>
 
-<h2>Wall</h2>
-<div id="wall-posts"></div>
+<section id="quote">
+  <div class="quote-inner reveal">
+    <p class="quote-text">"Blessed are the pure in heart,<br>for <em>they shall see God.</em>"</p>
+    <span class="quote-ref">Matthew 5 : 8</span>
+  </div>
+</section>
+
+<section id="posts">
+  <div class="reveal">
+    <div class="sec-label">from me</div>
+    <h2 class="sec-title">what's on my mind.</h2>
+  </div>
+  <div id="posts-grid"><div class="posts-loading">loading...</div></div>
+</section>
+
+<section id="gallery">
+  <div class="reveal">
+    <div class="sec-label">visuals</div>
+    <h2 class="sec-title">pictures &amp; things.</h2>
+  </div>
+  <p class="gallery-hint reveal">
+    to add a photo → go to <span>supabase → storage → photos bucket → upload</span><br>
+    it'll appear here automatically. no code needed.
+  </p>
+  <div id="gallery-grid" class="reveal">
+    <div class="gallery-loading">loading photos...</div>
+  </div>
+</section>
+
+<section id="wall">
+  <div class="reveal">
+    <div class="sec-label">from you</div>
+    <h2 class="sec-title">the wall.</h2>
+  </div>
+  <div class="wall-form reveal">
+    <div class="wall-form-title">leave something here.</div>
+    <div class="form-row">
+      <input class="form-input half" id="w-name" placeholder="your name" maxlength="40"/>
+      <input class="form-input half" id="w-tag"  placeholder="vibe / tag (optional)" maxlength="20"/>
+    </div>
+    <textarea class="form-textarea" id="w-msg" placeholder="say something..." maxlength="300"></textarea>
+    <br>
+    <button class="submit-btn" id="w-btn" onclick="submitWall()">post it →</button>
+    <div class="wall-status" id="w-status"></div>
+  </div>
+  <div id="wall-posts"><div class="wall-empty">loading the wall...</div></div>
+</section>
+
+<footer>
+  <span>© 2026 the dawn space</span>
+  <span>built from scratch</span>
+  <span>thedawnspace.vercel.app</span>
+</footer>
 
 <script>
-// 🔌 CONNECT TO SUPABASE
-const supabase = window.supabase.createClient(
-  "https://zjgmfiikowqomncqshkj.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZ21maWlrb3dxb21uY3FzaGtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjY5OTMsImV4cCI6MjA4OTYwMjk5M30.PMveXkN-wl5_R0L-U_7SfuG7y_zSDADHsjp223aACqo"
-);
-
-// 🚀 LOAD MESSAGES
-async function loadWall() {
-  const container = document.getElementById('wall-posts');
-
-  const { data, error } = await supabase
-    .from('wall')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    container.innerHTML = "Error loading messages";
-    console.log(error);
-    return;
-  }
-
-  if (!data.length) {
-    container.innerHTML = "No messages yet";
-    return;
-  }
-
-  container.innerHTML = '';
-
-  data.forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'wall-card';
-
-    div.innerHTML = `
-      <strong>${p.name || 'anonymous'}</strong><br>
-      <small>${p.tag || ''}</small>
-      <p>${p.msg}</p>
-    `;
-
-    container.appendChild(div);
+  // ── cursor ──
+  const cur = document.getElementById('cur');
+  const cur2 = document.getElementById('cur2');
+  document.addEventListener('mousemove', e => {
+    cur.style.left = e.clientX+'px'; cur.style.top = e.clientY+'px';
+    setTimeout(() => { cur2.style.left = e.clientX+'px'; cur2.style.top = e.clientY+'px'; }, 80);
   });
-}
 
-// ✍️ SUBMIT MESSAGE
-async function submitWall() {
-  const name = document.getElementById('w-name').value.trim();
-  const tag  = document.getElementById('w-tag').value.trim();
-  const msg  = document.getElementById('w-msg').value.trim();
+  // ── scroll reveal ──
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-  if (!msg) return;
+  // ── supabase ──
+  const SB_URL = 'https://zjgmfiikowqomncqshkj.supabase.co';
+  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqZ21maWlrb3dxb21uY3FzaGtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMjY5OTMsImV4cCI6MjA4OTYwMjk5M30.PMveXkN-wl5_R0L-U_7SfuG7y_zSDADHsjp223aACqo';
 
-  const { error } = await supabase.from('wall').insert([
-    {
-      name: name || 'anonymous',
-      tag,
-      msg
-    }
-  ]);
-
-  if (error) {
-    alert("Error posting message");
-    console.log(error);
-    return;
+  async function sbFetch(path, opts = {}) {
+    const res = await fetch(SB_URL + path, {
+      ...opts,
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        ...(opts.headers || {})
+      }
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(text);
+    return text ? JSON.parse(text) : null;
   }
 
-  document.getElementById('w-name').value = '';
-  document.getElementById('w-tag').value  = '';
-  document.getElementById('w-msg').value  = '';
+  // ── my posts ──
+  async function loadPosts() {
+    const grid = document.getElementById('posts-grid');
+    try {
+      const res = await fetch('./posts.json');
+      if (!res.ok) throw new Error('not found');
+      const posts = await res.json();
+      grid.innerHTML = '';
+      [...posts].reverse().forEach((p, i) => {
+        const c = document.createElement('div');
+        c.className = 'post-card reveal';
+        c.style.transitionDelay = (i * 0.07) + 's';
+        c.innerHTML = `
+          <div class="post-tag">${p.tag||'note'}</div>
+          <div class="post-date">${p.date}</div>
+          <h3 class="post-title">${p.title}</h3>
+          <p class="post-body">${p.body}</p>`;
+        grid.appendChild(c);
+        obs.observe(c);
+      });
+    } catch {
+      grid.innerHTML = `<div class="posts-error">⚠ upload posts.json to your github repo alongside index.html</div>`;
+    }
+  }
+  loadPosts();
 
-  loadWall();
-}
+  // ── gallery from supabase storage ──
+  async function loadGallery() {
+    const grid = document.getElementById('gallery-grid');
+    try {
+      // list files in the photos bucket
+      const files = await sbFetch('/storage/v1/object/list/photos', {
+        method: 'POST',
+        body: JSON.stringify({ limit: 100, offset: 0, sortBy: { column: 'created_at', order: 'desc' } })
+      });
 
-// 🔄 INITIAL LOAD
-loadWall();
-</script>
+      if (!files || !files.length) {
+        grid.innerHTML = `
+          <div class="gallery-slot empty"><span class="slot-icon">◻</span><span class="slot-text">no photos yet</span></div>
+          <div class="gallery-slot empty"><span class="slot-icon">◻</span><span class="slot-text">upload to supabase</span></div>
+          <div class="gallery-slot empty"><span class="slot-icon">◻</span><span class="slot-text">appears here</span></div>`;
+        return;
+      }
 
-</body>
-</html>
+      grid.innerHTML = '';
+      files.forEach((file, i) => {
+        const url = `${SB_URL}/storage/v1/object/public/photos/${file.name}`;
+        const slot = document.createElement('div');
+        slot.className = 'gallery-slot filled reveal';
+        slot.style.transitionDelay = (i * 0.06) + 's';
+        slot.innerHTML = `
+          <img src="${url}" alt="${file.name}" loading="lazy"/>
+          <div class="img-overlay">
+            <span class="img-name">${file.name}</span>
+          </div>`;
+        slot.addEventListener('click', () => openLightbox(url));
+        grid.appendChild(slot);
+        obs.observe(slot);
+      });
+
+    } catch(err) {
+      grid.innerHTML = `<div class="gallery-loading">⚠ couldn't load photos — make sure your bucket is named "photos" and is set to public</div>`;
+      console.error(err);
+    }
+  }
+  loadGallery();
+
+  // ── lightbox ──
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.getElementById('lightbox-img').src = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  // ── wall ──
+  async function loadWall() {
+    const container = document.getElementById('wall-posts');
+    try {
+      const posts = await sbFetch('/rest/v1/wall?order=created_at.desc&limit=50');
+      renderWallPosts(posts);
+    } catch(err) {
+      container.innerHTML = `<div class="wall-empty">couldn't load the wall right now.</div>`;
+    }
+  }
+
+  function renderWallPosts(posts) {
+    const container = document.getElementById('wall-posts');
+    if (!posts || !posts.length) {
+      container.innerHTML = '<div class="wall-empty">nothing here yet. be the first.</div>';
+      return;
+    }
+    container.innerHTML = '';
+    posts.forEach((p, i) => {
+      const c = document.createElement('div');
+      c.className = 'wall-card reveal';
+      c.st
